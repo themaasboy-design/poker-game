@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة البوكر الاحترافية - أونلاين</title>
+    <!-- مكتبة إكسل -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase App & Realtime Database (طريقة متوافقة تماماً مع كل المتصفحات) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary-gold: #d4af37; --dark-bg: #0f1215; --card-bg: #1e2227;
+            --accent-red: #e74c3c; --accent-green: #2ecc71; --text-color: #e0e0e0;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 20px; min-height: 100vh; }
+        .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .screen { display: none; } .active { display: block; }
+        h1 { color: var(--primary-gold); text-align: center; font-size: 3rem; margin-bottom: 20px; }
+        .btn { display: block; width: fit-content; margin: 10px auto; background: linear-gradient(45deg, #d4af37, #f2d06b); color: #000; border: none; padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; }
+        
+        .game-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        .players-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-content: start; }
+        
+        .player-card { background: #2c313a; padding: 10px; border-radius: 10px; border-right: 4px solid var(--primary-gold); font-size: 0.9rem; }
+        .score-display { font-size: 1.8rem; font-weight: bold; margin: 5px 0; color: var(--primary-gold); text-align: center; }
+        
+        .grid-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; }
+        .small-btn { padding: 5px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 0.8rem; }
+        .calc-btn { width: 100%; padding: 6px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.8rem; }
+        .custom-input-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .custom-input { width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #161a1e; color: white; text-align: center; }
+        .custom-btn { background: #3498db; border: none; color: white; padding: 0 10px; border-radius: 5px; cursor: pointer; }
+        .f-add { background: var(--accent-green); }
+        .f-sub { background: var(--accent-red); }
+        .bg-plus { background: #4a7c59; }
+        .bg-minus { background: #a93226; }
+
+        .leaderboard { background: #161a1e; padding: 15px; border-radius: 12px; border: 1px solid #333; height: fit-content; }
+        .leader-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dotted #444; }
+        .rank-1 { color: gold; font-weight: bold; }
+        .player-name-input { display: block; margin: 10px auto; padding: 10px; width: 250px; border-radius: 8px; border: 1px solid #444; background: #2c313a; color: white; }
+        
+        .math-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+        .math-input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #2c313a; color: white; text-align: center; margin-bottom: 5px; }
+        .math-btn { width: 100%; padding: 8px; border: none; border-radius: 5px; background: #8e44ad; color: white; cursor: pointer; font-weight: bold; }
+        .share-box { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center; border: 1px dashed var(--primary-gold); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="home-screen" class="screen active">
+        <h1>مسابقة "البوكر" أونلاين</h1>
+        <button class="btn" onclick="showSetup()">بدء لعبة جديدة (مشرف)</button>
+    </div>
+
+    <div id="setup-screen" class="screen">
+        <h2>تسجيل اللاعبين (لوحة التحكم)</h2>
+        <div id="player-inputs"></div>
+        <button class="btn" style="background:#555;" onclick="addPlayerInput()">+ إضافة لاعب</button>
+        <button class="btn" onclick="startOnlineGame()">بدء المسابقة ونشر الرابط</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="share-box">
+            <p style="margin:0 0 5px 0; color:var(--primary-gold);">🔗 رابط مشاهدة النتائج للاعبين:</p>
+            <input type="text" id="spectator-link" readonly style="width:70%; padding:8px; background:#111; color:#fff; border:1px solid #444; border-radius:5px; text-align:center;">
+            <button class="custom-btn" style="padding: 8px 15px;" onclick="copyLink()">نسخ الرابط</button>
+        </div>
+        <div class="game-layout">
+            <div class="players-list" id="players-list"></div>
+            <div class="leaderboard">
+                <h3>🏆 الترتيب الحالي (لايف)</h3>
+                <div id="ranking-box"></div>
+                <div class="math-section" id="admin-math-tools">
+                    <input type="number" id="global-math-input" class="math-input" placeholder="أدخل مبلغ للتقسيم">
+                    <button class="math-btn" onclick="divideByTwo()">تقسيم المبلغ على 2</button>
+                    <label id="result-label" style="color:var(--primary-gold); display:block; margin-top:5px;"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="winner-screen" class="screen">
+        <h1 style="color:var(--accent-green)">🎉 مبروك الفائز!</h1>
+        <h2 id="winner-name" style="font-size:2.5rem;"></h2>
+        <button class="btn" onclick="location.reload()">لعبة جديدة</button>
+    </div>
+</div>
+
+<script>
+    // إعدادات فايربيس
+    const firebaseConfig = {
+        apiKey: "AIzaSyCbHlqW4zFIuLwXLneu__NTCvJyFciPMUU",
+        authDomain: "poker-game-3e0ea.firebaseapp.com",
+        projectId: "poker-game-3e0ea",
+        storageBucket: "poker-game-3e0ea.firebasestorage.app",
+        messagingSenderId: "117845945720",
+        appId: "1:117845945720:web:503d251edc1cf4d7a62c8d",
+        measurementId: "G-Z2CJWN34EV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let isAdmin = urlParams.get('mode') === 'admin';
+    let isSpectator = urlParams.get('mode') === 'spectator';
+    const WIN_SCORE = 500;
+
+    window.onload = function() {
+        if (isSpectator) {
+            document.getElementById('home-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            document.querySelector('.share-box').style.display = 'none';
+            document.getElementById('admin-math-tools').style.display = 'none';
+            listenToDatabase(false);
+        } else if (isAdmin) {
+            document.getElementById('home-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            let specUrl = window.location.origin + window.location.pathname + '?mode=spectator';
+            document.getElementById('spectator-link').value = specUrl;
+            listenToDatabase(true);
+        }
+    };
+
+    window.showSetup = function() {
+        document.getElementById('home-screen').classList.remove('active');
+        document.getElementById('setup-screen').classList.add('active');
+        for(let i=0; i<4; i++) addPlayerInput();
+    }
+
+    window.addPlayerInput = function() {
+        const container = document.getElementById('player-inputs');
+        if (container.children.length < 8) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'اسم اللاعب ' + (container.children.length + 1);
+            input.className = 'player-name-input';
+            container.appendChild(input);
+        }
+    }
+
+    window.startOnlineGame = function() {
+        const inputs = document.querySelectorAll('.player-name-input');
+        let initialPlayers = [];
+        inputs.forEach(i => { if (i.value.trim() !== "") initialPlayers.push({ name: i.value, score: 50 }); });
+        if (initialPlayers.length < 4) return alert("يجب إدخال 4 لاعبين على الأقل");
+
+        db.ref('gameData').set({ players: initialPlayers, status: 'playing' }).then(() => {
+            window.location.href = window.location.pathname + '?mode=admin';
+        });
+    }
+
+    function listenToDatabase(isUserAdmin) {
+        db.ref('gameData').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.players) {
+                renderGameUI(data.players, isUserAdmin);
+                
+                let winner = data.players.find(p => p.score >= WIN_SCORE);
+                if (winner && isUserAdmin && data.status === 'playing') {
+                    db.ref('gameData/status').set('ended');
+                    showWinnerScreen(winner, data.players);
+                } else if (data.status === 'ended' && winner) {
+                    showWinnerScreen(winner, data.players);
+                }
+            }
+        });
+    }
+
+    window.renderGameUI = function(playersList, isUserAdmin) {
+        const list = document.getElementById('players-list');
+        list.innerHTML = '';
+        
+        playersList.forEach((p, i) => {
+            let adminControls = isUserAdmin ? `
+                <div class="custom-input-box"> <input type="number" id="custom-${i}" class="custom-input" placeholder="رقم"> <button class="custom-btn" onclick="addCustom(${i})">إضافة</button> </div>
+                <div class="grid-controls"> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -5)">-5</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 5)">+5</button> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -1)">-1</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 1)">+1</button> </div>
+                <button class="calc-btn f-add" onclick="update(${i}, true)">الزيادة (إلا 1)</button> <button class="calc-btn f-sub" onclick="update(${i}, false)">الخصم (للواحد)</button>
+            ` : '';
+
+            list.innerHTML += `
+                <div class="player-card">
+                    <div style="font-weight:bold; font-size:1.1rem; text-align:center;">${p.name}</div>
+                    <div class="score-display">${p.score}</div>
+                    ${adminControls}
+                </div>
+            `;
+        });
+
+        const box = document.getElementById('ranking-box');
+        const sorted = [...playersList].sort((a, b) => b.score - a.score);
+        box.innerHTML = sorted.map((p, idx) => `
+            <div class="leader-item ${idx === 0 ? 'rank-1' : ''}">
+                <span>#${idx+1} ${p.name}</span>
+                <span>${p.score}</span>
+            </div>
+        `).join('');
+    }
+
+    window.quickUpdate = function(idx, amt) {
+        db.ref('gameData/players').once('value', (snapshot) => {
+            let players = snapshot.val();
+            players[idx].score += amt;
+            db.ref('gameData/players').set(players);
+        });
+    }
+
+    window.addCustom = function(idx) {
+        const val = parseInt(document.getElementById(`custom-${idx}`).value);
+        if(!isNaN(val)) {
+            db.ref('gameData/players').once('value', (snapshot) => {
+                let players = snapshot.val();
+                players[idx].score += val;
+                db.ref('gameData/players').set(players);
+            });
+        }
+    }
+
+    window.update = function(idx, isAdd) {
+        db.ref('gameData/players').once('value', (snapshot) => {
+            let players = snapshot.val();
+            if (isAdd) players[idx].score += (players[idx].score - 1);
+            else players[idx].score = 1;
+            db.ref('gameData/players').set(players);
+        });
+    }
+
+    window.divideByTwo = function() {
+        const input = document.getElementById('global-math-input');
+        const label = document.getElementById('result-label');
+        const val = parseInt(input.value);
+        if(!isNaN(val)) label.innerText = "الناتج: " + Math.floor(val / 2);
+        else label.innerText = "أدخل رقماً صحيحاً";
+    }
+
+    window.copyLink = function() {
+        const copyText = document.getElementById("spectator-link");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("تم نسخ رابط المشاهدة بنجاح!");
+    }
+
+    function showWinnerScreen(winner, playersList) {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('winner-screen').classList.add('active');
+        document.getElementById('winner-name').innerText = `🏆 ${winner.name} 🏆`;
+        if (isAdmin) autoExportToExcel(playersList);
+    }
+
+    async function autoExportToExcel(sortedPlayers) {
+        let history = JSON.parse(localStorage.getItem('poker_history')) || [];
+        const now = new Date();
+        const headers = ["الفائز الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاريخ", "اليوم"];
+        let row = {};
+        let sorted = [...sortedPlayers].sort((a, b) => b.score - a.score);
+        headers.forEach((h, i) => { if (i < 8) row[h] = sorted[i] ? sorted[i].name : "-"; });
+        row["التاريخ"] = now.toLocaleDateString('ar-EG');
+        row["اليوم"] = now.toLocaleDateString('ar-EG', { weekday: 'long' });
+        history.push(row);
+        localStorage.setItem('poker_history', JSON.stringify(history));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(history, { header: headers }), "النتائج");
+        
+        try {
+            const handle = await window.showSaveFilePicker({ suggestedName: 'سجل_البوكر.xlsx', types: [{ description: 'Excel', accept: {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']} }] });
+            const writable = await handle.createWritable();
+            await writable.write(new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })]));
+            await writable.close();
+        } catch(e) { XLSX.writeFile(wb, "سجل_البوكر.xlsx"); }
+    }
+</script>
+</body>
+</html>
