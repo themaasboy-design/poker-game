@@ -25,7 +25,6 @@
             --accent-red: #e74c3c; --accent-green: #2ecc71; --text-color: #e0e0e0;
         }
         
-        /* تطبيق خط ثمانية على كامل التطبيق */
         body { font-family: 'ThmanyahSerif', 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; }
         
         .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); box-sizing: border-box; }
@@ -64,7 +63,6 @@
         .qr-container { background: white; padding: 6px; border-radius: 8px; display: inline-block; }
         .qr-container img { display: block; width: 130px; height: 130px; }
 
-        /* شاشة الفائز مع جدول الترتيب بالأسفل */
         #winner-screen { text-align: center; }
         .final-leaderboard-container { max-width: 600px; margin: 25px auto 0 auto; background: #161a1e; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: right; }
 
@@ -118,7 +116,7 @@
         </div>
     </div>
 
-    <!-- شاشة الفائز مع إظهار جدول الترتيب النهائي بالأسفل -->
+    <!-- شاشة الفائز مع زر إعادة تعيين نظيف -->
     <div id="winner-screen" class="screen">
         <h1 style="color:var(--accent-green)">🎉 مبروك الفائز!</h1>
         <h2 id="winner-name" style="font-size:2.5rem;"></h2>
@@ -128,7 +126,7 @@
             <div id="final-ranking-box"></div>
         </div>
 
-        <button class="btn" style="margin: 25px auto 0 auto;" onclick="location.reload()">لعبة جديدة</button>
+        <button class="btn" style="margin: 25px auto 0 auto;" onclick="resetGame()">لعبة جديدة</button>
     </div>
 </div>
 
@@ -213,6 +211,9 @@
                 } else if (data.status === 'ended' && winner) {
                     showWinnerScreen(winner, data.players);
                 }
+            } else if (!data && !isUserAdmin && !isAdmin) {
+                // إذا تم مسح البيانات، يعود الجميع للبداية
+                window.location.href = window.location.pathname;
             }
         });
     }
@@ -225,7 +226,7 @@
             let adminControls = isUserAdmin ? `
                 <div class="custom-input-box"> <input type="number" id="custom-${i}" class="custom-input" placeholder="رقم مخصص"> <button class="custom-btn" onclick="addCustom(${i})">إضافة</button> </div>
                 <div class="grid-controls"> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -5)">-5</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 5)">+5</button> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -1)">-1</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 1)">+1</button> </div>
-                <button class="calc-btn f-add" onclick="update(${i}, true)">زيادة إلا ألف  </button> <button class="calc-btn f-sub" onclick="update(${i}, false)">خصم إلاألف </button>
+                <button class="calc-btn f-add" onclick="update(${i}, true)">الزيادة (إلا 1)</button> <button class="calc-btn f-sub" onclick="update(${i}, false)">الخصم (للواحد)</button>
             ` : '';
 
             list.innerHTML += `
@@ -295,7 +296,6 @@
         document.getElementById('winner-screen').classList.add('active');
         document.getElementById('winner-name').innerText = `🏆 ${winner.name} 🏆`;
         
-        // عرض جدول الترتيب النهائي في أسفل شاشة الفائز
         const finalBox = document.getElementById('final-ranking-box');
         const sorted = [...playersList].sort((a, b) => b.score - a.score);
         finalBox.innerHTML = sorted.map((p, idx) => `
@@ -305,7 +305,17 @@
             </div>
         `).join('');
 
-        if (isAdmin) autoExportToExcel(playersList);
+        if (isAdmin && !window.excelExported) {
+            window.excelExported = true;
+            autoExportToExcel(playersList);
+        }
+    }
+
+    // دالة مسح بيانات Firebase وإعادة التوجيه للبداية بنجاح
+    window.resetGame = function() {
+        db.ref('gameData').remove().then(() => {
+            window.location.href = window.location.pathname;
+        });
     }
 
     async function autoExportToExcel(sortedPlayers) {
