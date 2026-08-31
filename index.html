@@ -11,18 +11,29 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
+        /* تعريف خط ثمانية - تأكد أن اسم الملف المطابق مرفوع بجانب index.html */
+        @font-face {
+            font-family: 'Thmanyah';
+            src: url('Thmanyah.woff2') format('woff2'),
+                 url('Thmanyah.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
             --primary-gold: #d4af37; --dark-bg: #0f1215; --card-bg: #1e2227;
             --accent-red: #e74c3c; --accent-green: #2ecc71; --text-color: #e0e0e0;
         }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; }
+        
+        /* تطبيق خط ثمانية على كامل التطبيق */
+        body { font-family: 'Thmanyah', 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; }
+        
         .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); box-sizing: border-box; }
         .screen { display: none; } .active { display: block; }
         h1 { color: var(--primary-gold); text-align: center; font-size: 2.5rem; margin-bottom: 20px; }
         h2 { font-size: 1.5rem; text-align: center; }
-        .btn { display: block; width: fit-content; margin: 10px auto; background: linear-gradient(45deg, #d4af37, #f2d06b); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; text-align: center; }
+        .btn { display: block; width: fit-content; margin: 10px auto; background: linear-gradient(45deg, #d4af37, #f2d06b); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; text-align: center; font-family: 'Thmanyah', sans-serif; }
         
-        /* التخطيط الافتراضي للشاشات الكبيرة (لابتوب / آيباد أفقي) */
         .game-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
         .players-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start; }
         
@@ -30,11 +41,11 @@
         .score-display { font-size: 1.8rem; font-weight: bold; margin: 5px 0; color: var(--primary-gold); text-align: center; }
         
         .grid-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-        .small-btn { padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 0.95rem; }
-        .calc-btn { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9rem; }
+        .small-btn { padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 0.95rem; font-family: 'Thmanyah', sans-serif; }
+        .calc-btn { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9rem; font-family: 'Thmanyah', sans-serif; }
         .custom-input-box { display: flex; gap: 5px; margin-bottom: 10px; }
-        .custom-input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #161a1e; color: white; text-align: center; font-size: 1rem; }
-        .custom-btn { background: #3498db; border: none; color: white; padding: 0 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .custom-input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #161a1e; color: white; text-align: center; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
+        .custom-btn { background: #3498db; border: none; color: white; padding: 0 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Thmanyah', sans-serif; }
         .f-add { background: var(--accent-green); }
         .f-sub { background: var(--accent-red); }
         .bg-plus { background: #4a7c59; }
@@ -43,20 +54,23 @@
         .leaderboard { background: #161a1e; padding: 15px; border-radius: 12px; border: 1px solid #333; height: fit-content; }
         .leader-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px dotted #444; font-size: 1rem; }
         .rank-1 { color: gold; font-weight: bold; }
-        .player-name-input { display: block; margin: 10px auto; padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #444; background: #2c313a; color: white; box-sizing: border-box; font-size: 1.05rem; }
+        .player-name-input { display: block; margin: 10px auto; padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #444; background: #2c313a; color: white; box-sizing: border-box; font-size: 1.05rem; font-family: 'Thmanyah', sans-serif; }
         
         .math-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
-        .math-input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2c313a; color: white; text-align: center; margin-bottom: 8px; box-sizing: border-box; font-size: 1rem; }
-        .math-btn { width: 100%; padding: 10px; border: none; border-radius: 5px; background: #8e44ad; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        .math-input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2c313a; color: white; text-align: center; margin-bottom: 8px; box-sizing: border-box; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
+        .math-btn { width: 100%; padding: 10px; border: none; border-radius: 5px; background: #8e44ad; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
         
         .share-box { background: #161a1e; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px dashed var(--primary-gold); display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .qr-container { background: white; padding: 6px; border-radius: 8px; display: inline-block; }
         .qr-container img { display: block; width: 130px; height: 130px; }
 
-        /* تعديلات الجوال: المتسابقين تحت بعض، ثم الترتيب، ثم قسمة المبلغ في الأسفل */
+        /* شاشة الفائز مع جدول الترتيب بالأسفل */
+        #winner-screen { text-align: center; }
+        .final-leaderboard-container { max-width: 600px; margin: 25px auto 0 auto; background: #161a1e; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: right; }
+
         @media (max-width: 900px) {
             .game-layout { display: flex; flex-direction: column; gap: 20px; }
-            .players-list { grid-template-columns: 1fr; gap: 12px; } /* كل متسابق في سطر مستقل لسهولة وسلاسة الإدخال */
+            .players-list { grid-template-columns: 1fr; gap: 12px; }
             .share-box input[type="text"] { width: 100% !important; font-size: 0.85rem; }
             .share-box > div:last-child { flex-direction: column; width: 100%; }
             .custom-btn { width: 100%; padding: 12px; }
@@ -85,12 +99,11 @@
                 <img id="qr-code-img" src="" alt="QR Code">
             </div>
             <div style="display:flex; width:100%; max-width:400px; gap:8px; justify-content:center; align-items:center;">
-                <input type="text" id="spectator-link" readonly style="width:70%; padding:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px; text-align:center;">
+                <input type="text" id="spectator-link" readonly style="width:70%; padding:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px; text-align:center; font-family:'Thmanyah',sans-serif;">
                 <button class="custom-btn" style="padding: 10px 15px;" onclick="copyLink()">نسخ</button>
             </div>
         </div>
 
-        <!-- التخطيط العام: اللاعبين أولاً، ثم الترتيب والقسمة أسفل منهم في الجوال -->
         <div class="game-layout">
             <div class="players-list" id="players-list"></div>
             <div class="leaderboard">
@@ -105,10 +118,17 @@
         </div>
     </div>
 
+    <!-- شاشة الفائز مع إظهار جدول الترتيب النهائي بالأسفل -->
     <div id="winner-screen" class="screen">
         <h1 style="color:var(--accent-green)">🎉 مبروك الفائز!</h1>
         <h2 id="winner-name" style="font-size:2.5rem;"></h2>
-        <button class="btn" onclick="location.reload()">لعبة جديدة</button>
+        
+        <div class="final-leaderboard-container">
+            <h3 style="color: var(--primary-gold); text-align: center; margin-top: 0;">📋 جدول الترتيب النهائي</h3>
+            <div id="final-ranking-box"></div>
+        </div>
+
+        <button class="btn" style="margin: 25px auto 0 auto;" onclick="location.reload()">لعبة جديدة</button>
     </div>
 </div>
 
@@ -274,6 +294,17 @@
         document.getElementById('game-screen').classList.remove('active');
         document.getElementById('winner-screen').classList.add('active');
         document.getElementById('winner-name').innerText = `🏆 ${winner.name} 🏆`;
+        
+        // عرض جدول الترتيب النهائي في أسفل شاشة الفائز
+        const finalBox = document.getElementById('final-ranking-box');
+        const sorted = [...playersList].sort((a, b) => b.score - a.score);
+        finalBox.innerHTML = sorted.map((p, idx) => `
+            <div class="leader-item ${idx === 0 ? 'rank-1' : ''}">
+                <span>#${idx+1} ${p.name}</span>
+                <span>${p.score}</span>
+            </div>
+        `).join('');
+
         if (isAdmin) autoExportToExcel(playersList);
     }
 
