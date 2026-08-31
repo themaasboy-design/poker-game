@@ -11,11 +11,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* تعريف خط ثمانية - تأكد أن اسم الملف المطابق مرفوع بجانب index.html */
+        /* تعريف خط ثمانية بالاسم الفعلي الصحيح */
         @font-face {
-            font-family: 'Thmanyah';
-            src: url('Thmanyah.woff2') format('woff2'),
-                 url('Thmanyah.ttf') format('truetype');
+            font-family: 'ThmanyahSerif';
+            src: url('thmanyahseriftext-Medium.woff2') format('woff2'),
+                 url('thmanyahseriftext-Medium.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
@@ -26,13 +26,13 @@
         }
         
         /* تطبيق خط ثمانية على كامل التطبيق */
-        body { font-family: 'Thmanyah', 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; }
+        body { font-family: 'ThmanyahSerif', 'Segoe UI', Tahoma, sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; }
         
         .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); box-sizing: border-box; }
         .screen { display: none; } .active { display: block; }
         h1 { color: var(--primary-gold); text-align: center; font-size: 2.5rem; margin-bottom: 20px; }
         h2 { font-size: 1.5rem; text-align: center; }
-        .btn { display: block; width: fit-content; margin: 10px auto; background: linear-gradient(45deg, #d4af37, #f2d06b); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; text-align: center; font-family: 'Thmanyah', sans-serif; }
+        .btn { display: block; width: fit-content; margin: 10px auto; background: linear-gradient(45deg, #d4af37, #f2d06b); color: #000; border: none; padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; text-align: center; font-family: 'ThmanyahSerif', sans-serif; }
         
         .game-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
         .players-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start; }
@@ -41,11 +41,11 @@
         .score-display { font-size: 1.8rem; font-weight: bold; margin: 5px 0; color: var(--primary-gold); text-align: center; }
         
         .grid-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-        .small-btn { padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 0.95rem; font-family: 'Thmanyah', sans-serif; }
-        .calc-btn { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9rem; font-family: 'Thmanyah', sans-serif; }
+        .small-btn { padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 0.95rem; font-family: 'ThmanyahSerif', sans-serif; }
+        .calc-btn { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9rem; font-family: 'ThmanyahSerif', sans-serif; }
         .custom-input-box { display: flex; gap: 5px; margin-bottom: 10px; }
-        .custom-input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #161a1e; color: white; text-align: center; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
-        .custom-btn { background: #3498db; border: none; color: white; padding: 0 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Thmanyah', sans-serif; }
+        .custom-input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #161a1e; color: white; text-align: center; font-size: 1rem; font-family: 'ThmanyahSerif', sans-serif; }
+        .custom-btn { background: #3498db; border: none; color: white; padding: 0 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'ThmanyahSerif', sans-serif; }
         .f-add { background: var(--accent-green); }
         .f-sub { background: var(--accent-red); }
         .bg-plus { background: #4a7c59; }
@@ -54,11 +54,11 @@
         .leaderboard { background: #161a1e; padding: 15px; border-radius: 12px; border: 1px solid #333; height: fit-content; }
         .leader-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px dotted #444; font-size: 1rem; }
         .rank-1 { color: gold; font-weight: bold; }
-        .player-name-input { display: block; margin: 10px auto; padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #444; background: #2c313a; color: white; box-sizing: border-box; font-size: 1.05rem; font-family: 'Thmanyah', sans-serif; }
+        .player-name-input { display: block; margin: 10px auto; padding: 12px; width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #444; background: #2c313a; color: white; box-sizing: border-box; font-size: 1.05rem; font-family: 'ThmanyahSerif', sans-serif; }
         
         .math-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
-        .math-input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2c313a; color: white; text-align: center; margin-bottom: 8px; box-sizing: border-box; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
-        .math-btn { width: 100%; padding: 10px; border: none; border-radius: 5px; background: #8e44ad; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; font-family: 'Thmanyah', sans-serif; }
+        .math-input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2c313a; color: white; text-align: center; margin-bottom: 8px; box-sizing: border-box; font-size: 1rem; font-family: 'ThmanyahSerif', sans-serif; }
+        .math-btn { width: 100%; padding: 10px; border: none; border-radius: 5px; background: #8e44ad; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; font-family: 'ThmanyahSerif', sans-serif; }
         
         .share-box { background: #161a1e; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px dashed var(--primary-gold); display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .qr-container { background: white; padding: 6px; border-radius: 8px; display: inline-block; }
@@ -99,7 +99,7 @@
                 <img id="qr-code-img" src="" alt="QR Code">
             </div>
             <div style="display:flex; width:100%; max-width:400px; gap:8px; justify-content:center; align-items:center;">
-                <input type="text" id="spectator-link" readonly style="width:70%; padding:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px; text-align:center; font-family:'Thmanyah',sans-serif;">
+                <input type="text" id="spectator-link" readonly style="width:70%; padding:10px; background:#111; color:#fff; border:1px solid #444; border-radius:5px; text-align:center; font-family:'ThmanyahSerif',sans-serif;">
                 <button class="custom-btn" style="padding: 10px 15px;" onclick="copyLink()">نسخ</button>
             </div>
         </div>
@@ -225,7 +225,7 @@
             let adminControls = isUserAdmin ? `
                 <div class="custom-input-box"> <input type="number" id="custom-${i}" class="custom-input" placeholder="رقم مخصص"> <button class="custom-btn" onclick="addCustom(${i})">إضافة</button> </div>
                 <div class="grid-controls"> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -5)">-5</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 5)">+5</button> <button class="small-btn bg-minus" onclick="quickUpdate(${i}, -1)">-1</button> <button class="small-btn bg-plus" onclick="quickUpdate(${i}, 1)">+1</button> </div>
-                <button class="calc-btn f-add" onclick="update(${i}, true)">الزيادة (إلا 1)</button> <button class="calc-btn f-sub" onclick="update(${i}, false)">الخصم (للواحد)</button>
+                <button class="calc-btn f-add" onclick="update(${i}, true)">زيادة إلا ألف  </button> <button class="calc-btn f-sub" onclick="update(${i}, false)">خصم إلاألف </button>
             ` : '';
 
             list.innerHTML += `
